@@ -17,9 +17,20 @@ import {
   getDocs, 
   setDoc, 
   serverTimestamp, 
-  increment 
+  increment,
+  CollectionReference,
+  DocumentData,
+  DocumentReference,
+  Query,
+  Timestamp
 } from 'firebase/firestore';
 import { IoArrowBack } from 'react-icons/io5';
+
+interface Usuario {
+  balance: number;
+  email: string;
+  uid: string;
+}
 
 interface SeguroOpcion {
   id: string;
@@ -37,10 +48,23 @@ interface CodigoPromo {
   diasCobertura: number;
 }
 
+interface Seguro {
+  userId: string;
+  numeroPoliza: string;
+  fechaInicio: string;
+  fechaFin: string;
+  valorCobertura: number;
+  valorPrima: number;
+  estado: string;
+  createdAt: Timestamp;
+  opcionSeguroId: string;
+  codigoPromoAplicado: string | null;
+}
+
 export default function Cotizar() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<Usuario | null>(null);
   const [opcionesSeguro, setOpcionesSeguro] = useState<SeguroOpcion[]>([]);
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>('');
   const [codigoPromo, setCodigoPromo] = useState('');
@@ -55,15 +79,16 @@ export default function Cotizar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         if (!user) {
           router.push('/login');
           return;
         }
 
-        const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+        const userDocRef = doc(db, 'usuarios', user.uid);
+        const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-          setUserData(userDoc.data());
+          setUserData(userDoc.data() as Usuario);
         }
 
         const opcionesRef = collection(db, 'opcionesSeguro');
@@ -94,9 +119,7 @@ export default function Cotizar() {
     };
 
     checkAuth();
-  }, [router]);
-
-  const verificarCodigoPromo = async (codigo: string) => {
+  }, [router]);  const verificarCodigoPromo = async (codigo: string) => {
     try {
       const codigosRef = collection(db, 'codigosPromo');
       const q = query(codigosRef, where('codigo', '==', codigo));
@@ -192,7 +215,7 @@ export default function Cotizar() {
 
   const activarSeguro = async () => {
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
         router.push('/login');
         return;
@@ -232,14 +255,14 @@ export default function Cotizar() {
         : opcionSeguro.valorPrima;
 
       // Verificar saldo suficiente
-      if (userData.balance < valorPrima) {
+      if (!userData || userData.balance < valorPrima) {
         setError('Saldo insuficiente para activar el seguro');
         return;
       }
 
       // Crear el documento de la póliza
       const fechaHoraFin = new Date(`${fechaFin}T${horaFin}`);
-      const seguroData = {
+      const seguroData: Seguro = {
         userId: user.uid,
         numeroPoliza: nuevoNumeroPoliza,
         fechaInicio: fechaHoraInicio.toISOString(),
@@ -247,13 +270,28 @@ export default function Cotizar() {
         valorCobertura: opcionSeguro.valorCobertura,
         valorPrima: valorPrima,
         estado: 'Inactiva',
-        createdAt: serverTimestamp(),
+        createdAt: serverTimestamp() as Timestamp,
         opcionSeguroId: opcionSeleccionada,
         codigoPromoAplicado: codigoPromoValido?.codigo || null
       };
 
+      // Guardar datos para la página de confirmación
+      const datosParaConfirmacion = {
+        numeroPoliza: nuevoNumeroPoliza,
+        fechaInicio,
+        horaInicio,
+        diasSeguro: numDias,
+        primaTotal: valorPrima,
+        valorCobertura: opcionSeguro.valorCobertura,
+        tipoSeguro: opcionSeleccionada,
+        codigoPromocional: codigoPromoValido?.codigo || null
+      };
+      
+      localStorage.setItem('datosCotizacion', JSON.stringify(datosParaConfirmacion));
+
       // Guardar la póliza
-      await setDoc(doc(db, 'seguros', `${user.uid}_${Date.now()}`), seguroData);
+      const seguroDocRef = doc(db, 'seguros', `${user.uid}_${Date.now()}`);
+      await setDoc(seguroDocRef, seguroData);
 
       // Actualizar el balance del usuario
       const userRef = doc(db, 'usuarios', user.uid);
@@ -490,7 +528,7 @@ export default function Cotizar() {
               disabled={!opcionSeleccionada}
               className="bg-green-500/80 hover:bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Activar Seguro
+              Continuar
             </button>
           </div>
 

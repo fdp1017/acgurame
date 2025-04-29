@@ -6,16 +6,16 @@ import { Firestore } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 
 type FirebaseContextType = {
-  auth: Auth;
-  db: Firestore;
+  auth: Auth | null;
+  db: Firestore | null;
   user: User | null;
   initialized: boolean;
   error: Error | null;
 };
 
 const FirebaseContext = createContext<FirebaseContextType>({
-  auth,
-  db,
+  auth: auth ?? null,
+  db: db ?? null,
   user: null,
   initialized: false,
   error: null,
@@ -31,6 +31,7 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!auth) return;
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
       setInitialized(true);
