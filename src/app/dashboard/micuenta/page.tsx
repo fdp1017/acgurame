@@ -51,21 +51,24 @@ export default function MiCuenta() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         if (!user) {
           router.push('/login');
           return;
         }
 
         // Escuchar cambios en los datos del usuario en tiempo real
-        const unsubscribe = onSnapshot(doc(db, 'usuarios', user.uid), (doc) => {
-          if (doc.exists()) {
-            const data = doc.data() as UserData;
-            setUserData(data);
-            setPerfilData(data);
+        const unsubscribe = onSnapshot(
+          doc(db as any, 'usuarios', user.uid),
+          (docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data() as UserData;
+              setUserData(data);
+              setPerfilData(data);
+            }
+            setLoading(false);
           }
-          setLoading(false);
-        });
+        );
 
         // Cargar pólizas
         await cargarPolizas(user.uid);
@@ -82,7 +85,7 @@ export default function MiCuenta() {
 
   const cargarPolizas = async (userId: string) => {
     try {
-      const polizasRef = collection(db, 'seguros');
+      const polizasRef = collection(db as any, 'seguros');
       const q = query(
         polizasRef,
         where('userId', '==', userId),
@@ -133,7 +136,7 @@ export default function MiCuenta() {
       setPasswordError('');
       setPasswordSuccess('');
 
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
         setPasswordError('Usuario no autenticado');
         return;
@@ -167,9 +170,11 @@ export default function MiCuenta() {
       console.error('Error al cambiar la contraseña:', error);
       setPasswordError('Error al actualizar la contraseña. Por favor, inicie sesión nuevamente e intente de nuevo.');
     }
-  };  const handleDeposito = async () => {
+  };
+
+  const handleDeposito = async () => {
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user || !userData) return;
 
       const monto = parseFloat(montoOperacion);
@@ -179,7 +184,7 @@ export default function MiCuenta() {
       }
 
       const nuevoBalance = (userData.balance || 0) + monto;
-      await updateDoc(doc(db, 'usuarios', user.uid), {
+      await updateDoc(doc(db as any, 'usuarios', user.uid), {
         balance: nuevoBalance
       });
 
@@ -190,9 +195,10 @@ export default function MiCuenta() {
       setErrorMessage('Error al procesar el depósito');
     }
   };
+
   const handleRetiro = async () => {
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user || !userData) return;
 
       const monto = parseFloat(montoOperacion);
@@ -207,7 +213,7 @@ export default function MiCuenta() {
       }
 
       const nuevoBalance = (userData.balance || 0) - monto;
-      await updateDoc(doc(db, 'usuarios', user.uid), {
+      await updateDoc(doc(db as any, 'usuarios', user.uid), {
         balance: nuevoBalance
       });
 
@@ -221,7 +227,7 @@ export default function MiCuenta() {
 
   const handleUpdatePerfil = async () => {
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user || !perfilData) return;
       const updateData = {
         nombre: perfilData.nombre,
@@ -230,7 +236,7 @@ export default function MiCuenta() {
         tipoDocumento: perfilData.tipoDocumento,
         numeroDocumento: perfilData.numeroDocumento
       };
-      await updateDoc(doc(db, 'usuarios', user.uid), updateData);
+      await updateDoc(doc(db as any, 'usuarios', user.uid), updateData);
       setSeccionActiva('inicio');
       setErrorMessage('');
     } catch (error) {
@@ -258,7 +264,6 @@ export default function MiCuenta() {
        !['Reclamada', 'Cerrada'].includes(poliza.estado)
     );
   };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -499,7 +504,7 @@ export default function MiCuenta() {
                 <div className="border-t border-white/20 mt-8 pt-8">
                   <h4 className="text-xl font-semibold text-white mb-4">Cambiar Contraseña</h4>
                   
-             s     {passwordError && (
+                  {passwordError && (
                     <div className="bg-red-500/80 text-white p-3 rounded-lg text-center mb-4">
                       {passwordError}
                     </div>
@@ -569,4 +574,4 @@ export default function MiCuenta() {
       </div>
     </main>
   );
-}
+} 

@@ -28,7 +28,7 @@ export default function Confirmacion() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         if (!user) {
           router.push('/login');
           return;

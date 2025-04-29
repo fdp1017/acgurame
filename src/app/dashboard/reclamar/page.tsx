@@ -69,7 +69,7 @@ export default function Reclamar() {
 
         {/* Footer */}
         <footer className="text-center text-gray-400 text-sm mt-12">
-        ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
+          ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
         </footer>
       </div>
     </main>

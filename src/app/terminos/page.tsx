@@ -61,6 +61,11 @@ export default function Terminos() {
             />
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="text-center text-gray-400 text-sm mt-8">
+          ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
+        </footer>
       </div>
     </main>
   );

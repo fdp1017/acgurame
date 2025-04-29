@@ -5,31 +5,37 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { auth, db } from '../../firebase/config';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, Firestore } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+
+interface UserData {
+  nombre?: string;
+  balance?: number;
+  [key: string]: any;
+}
 
 export default function Dashboard() {
   const router = useRouter();
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         if (!user) {
           router.push('/login');
           return;
         }
 
         // Usar onSnapshot para escuchar cambios en tiempo real
-        const unsubscribe = onSnapshot(doc(db, 'usuarios', user.uid), (doc) => {
-          if (doc.exists()) {
-            setUserData(doc.data());
+        const userDocRef = doc(db as Firestore, 'usuarios', user.uid);
+        const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserData);
           }
           setLoading(false);
         });
-
         // Limpiar el listener cuando el componente se desmonte
         return () => unsubscribe();
       } catch (error) {
@@ -43,7 +49,9 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      if (auth) {
+        await signOut(auth);
+      }
       router.push('/login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

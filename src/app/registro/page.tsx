@@ -7,11 +7,11 @@ import Image from 'next/image';
 import { registerUser } from '@/firebase/auth';
 import PinInput from '@/components/PinInput';
 import { enviarCodigoVerificacion, verificarCodigos } from '@/firebase/verification';
-import { useFirebase } from '../layout';
+import { auth, db } from '@/firebase/config';
 
 export default function Register() {
   const router = useRouter();
-  const { auth, db, initialized } = useFirebase();
+  const initialized = true; // Si tienes lógica real de inicialización, reemplaza esto
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const confirmPinRef = useRef<HTMLDivElement>(null);
@@ -159,6 +159,12 @@ export default function Register() {
     setLoading(true);
 
     try {
+      if (!auth || !db) {
+        setError('Error interno de autenticación. Intenta más tarde.');
+        setLoading(false);
+        return;
+      }
+    
       const result = await registerUser({
         nombreCompleto: formData.nombreCompleto,
         tipoDocumento: formData.tipoDocumento,
@@ -171,7 +177,7 @@ export default function Register() {
         auth,
         db
       });
-
+    
       if (result.success) {
         router.push('/dashboard');
       } else {

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IoArrowBack } from 'react-icons/io5';
@@ -130,7 +129,7 @@ export default function PoliticaDatos() {
 
         {/* Footer */}
         <footer className="text-center text-gray-400 text-sm mt-8">
-        ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
+          ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
         </footer>
       </div>
     </main>

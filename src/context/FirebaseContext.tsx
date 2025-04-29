@@ -32,10 +32,16 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!auth) return;
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-      setInitialized(true);
-    });
+    const unsubscribe = auth.onAuthStateChanged(
+      (user) => {
+        setUser(user);
+        setInitialized(true);
+      },
+      (err) => {
+        setError(err);
+        setInitialized(true);
+      }
+    );
 
     return () => unsubscribe();
   }, []);

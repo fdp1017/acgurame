@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '../../firebase/auth';
-import { useFirebase } from '../layout';
+import { useFirebase } from '../../context/FirebaseContext';
 import { IoArrowBack } from 'react-icons/io5';
 
 const PinInput = ({ onPinComplete }: { onPinComplete: (pin: string) => void }) => {

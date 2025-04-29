@@ -1,3 +1,4 @@
+
 import { initializeApp, getApps } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
@@ -6,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCYVMXvukfvzqvqTTqnpmNntfpq8-x8TXA",
   authDomain: "acgura-app.firebaseapp.com",
   projectId: "acgura-app",
-  storageBucket: "acgura-app.firebasestorage.app",
+  storageBucket: "acgura-app.appspot.com", // <-- CORREGIDO
   messagingSenderId: "822857435433",
   appId: "1:822857435433:web:d66c489aa7294780ba0f38",
   measurementId: "G-TWEDEW30QQ"

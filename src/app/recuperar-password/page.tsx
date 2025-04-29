@@ -5,10 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { IoArrowBack } from 'react-icons/io5';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { useFirebase } from '../../app/layout';
+import { auth } from '@/firebase/config';
 
 export default function RecuperarPassword() {
-  const { auth } = useFirebase();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,6 +22,12 @@ export default function RecuperarPassword() {
     try {
       if (!email) {
         throw new Error('Por favor, ingresa tu correo electrónico');
+      }
+
+      if (!auth) {
+        setError('Error interno de autenticación. Intenta más tarde.');
+        setLoading(false);
+        return;
       }
 
       await sendPasswordResetEmail(auth, email);
@@ -132,7 +137,7 @@ export default function RecuperarPassword() {
 
         {/* Footer */}
         <footer className="text-center text-gray-400 text-sm mt-8">
-        ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
+          ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
         </footer>
       </div>
     </main>

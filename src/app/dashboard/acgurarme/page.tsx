@@ -132,6 +132,7 @@ export default function Cotizar() {
             <label className="block text-white mb-2">Selecciona tu cobertura</label>
             <div className="grid grid-cols-2 gap-4">
               <button
+                type="button"
                 onClick={() => setTipoSeguro('2000000')}
                 className={`p-4 rounded-lg transition-all duration-300 ${
                   tipoSeguro === '2000000'
@@ -143,6 +144,7 @@ export default function Cotizar() {
                 <div className="text-sm">$3.000 por día</div>
               </button>
               <button
+                type="button"
                 onClick={() => setTipoSeguro('5000000')}
                 className={`p-4 rounded-lg transition-all duration-300 ${
                   tipoSeguro === '5000000'
@@ -163,6 +165,7 @@ export default function Cotizar() {
               {/* Selector de Fecha */}
               <div className="flex-1 flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={decrementarFecha}
                   className="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
                 >
@@ -177,6 +180,7 @@ export default function Cotizar() {
                   className="flex-1 bg-white/10 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30"
                 />
                 <button
+                  type="button"
                   onClick={incrementarFecha}
                   className="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
                 >
@@ -189,6 +193,7 @@ export default function Cotizar() {
               {/* Selector de Hora */}
               <div className="flex-1 flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={decrementarHora}
                   className="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
                 >
@@ -203,6 +208,7 @@ export default function Cotizar() {
                   className="flex-1 bg-white/10 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30"
                 />
                 <button
+                  type="button"
                   onClick={incrementarHora}
                   className="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
                 >
@@ -219,6 +225,7 @@ export default function Cotizar() {
             <label className="block text-white mb-2">Días de Seguro</label>
             <div className="flex items-center justify-center gap-4">
               <button
+                type="button"
                 onClick={decrementarDias}
                 className="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
               >
@@ -240,6 +247,7 @@ export default function Cotizar() {
                 className="w-20 bg-white/10 text-white px-4 py-2 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-white/30"
               />
               <button
+                type="button"
                 onClick={incrementarDias}
                 className="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
               >
@@ -270,26 +278,25 @@ export default function Cotizar() {
           </div>
 
           {/* Botón de Continuar */}
-<button
-  onClick={() => {
-    // Guardar los datos en localStorage para que la página de confirmación los pueda leer
-    const datosCotizacion = {
-      tipoSeguro,
-      fechaInicio,
-      horaInicio,
-      diasSeguro,
-      primaTotal: calcularPrima(),
-      codigoPromocional
-    };
-    localStorage.setItem('datosCotizacion', JSON.stringify(datosCotizacion));
-    router.push('/dashboard/acgurarme/cotizar/confirmacion');
-  }}
-  className="w-full bg-blue-500/80 hover:bg-blue-500 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300"
->
-  Continuar
-</button>
-
-// ... (resto del código se mantiene igual)
+          <button
+            type="button"
+            onClick={() => {
+              // Guardar los datos en localStorage para que la página de confirmación los pueda leer
+              const datosCotizacion = {
+                tipoSeguro,
+                fechaInicio,
+                horaInicio,
+                diasSeguro,
+                primaTotal: calcularPrima(),
+                codigoPromocional
+              };
+              localStorage.setItem('datosCotizacion', JSON.stringify(datosCotizacion));
+              router.push('/dashboard/acgurarme/cotizar/confirmacion');
+            }}
+            className="w-full bg-blue-500/80 hover:bg-blue-500 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300"
+          >
+            Continuar
+          </button>
         </div>
 
         {/* Footer */}
