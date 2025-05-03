@@ -1,7 +1,5 @@
-// src/app/seguros/page.tsx
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -102,7 +100,7 @@ export default function SegurosPage() {
           {opcionesSeguros.map((opcion) => (
             <Link
               key={opcion.id}
-              href="/cotizacion"
+              href="/dashboard/acgurarme/cotizar"
               className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-[1.02]"
             >
               <div className="flex flex-col items-center text-center space-y-4">
