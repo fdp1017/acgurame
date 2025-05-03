@@ -1,198 +1,153 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { auth, db } from '../../firebase/config';
-import { doc, onSnapshot, Firestore } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
 
-interface UserData {
-  nombre?: string;
-  balance?: number;
-  [key: string]: any;
-}
-
-export default function Dashboard() {
-  const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = auth?.currentUser;
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-
-        // Usar onSnapshot para escuchar cambios en tiempo real
-        const userDocRef = doc(db as Firestore, 'usuarios', user.uid);
-        const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserData(docSnap.data() as UserData);
-          }
-          setLoading(false);
-        });
-        // Limpiar el listener cuando el componente se desmonte
-        return () => unsubscribe();
-      } catch (error) {
-        console.error('Error al obtener datos:', error);
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  const handleLogout = async () => {
-    try {
-      if (auth) {
-        await signOut(auth);
-      }
-      router.push('/login');
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+// Datos de prueba para el desarrollo
+const datosEjemplo = {
+  usuario: {
+    nombre: "Usuario de Prueba",
+    saldo: 500000
+  },
+  polizasActivas: [
+    {
+      id: "POL001",
+      tipo: "Accidentes Personales",
+      fechaInicio: "2024-02-20",
+      fechaFin: "2024-02-21",
+      estado: "activa",
+      cobertura: 1000000
+    },
+    {
+      id: "POL002",
+      tipo: "Accidentes Personales",
+      fechaInicio: "2024-02-22",
+      fechaFin: "2024-02-23",
+      estado: "pendiente",
+      cobertura: 2000000
     }
-  };
+  ]
+};
 
-  // Función para formatear números con separador de miles
-  const formatNumber = (number: number) => {
-    return number?.toLocaleString('es-CO') || '0';
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="w-32 h-32 relative animate-pulse">
-          <Image
-            src="/images/logo/ac-gura-high-resolution-logo-transparent.png"
-            alt="ACgura Logo"
-            fill
-            className="object-contain"
-          />
-        </div>
-      </div>
-    );
-  }
+export default function DashboardPage() {
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   return (
-    <main className="min-h-screen relative">
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/videos/background.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Barra de navegación superior */}
+      <nav className="bg-black/30 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              {/* Logo */}
+              <div className="flex-shrink-0 flex items-center">
+                <Image
+                  src="/images/logo/ac-gura-high-resolution-logo-transparent.png"
+                  alt="ACgura Logo"
+                  width={120}
+                  height={40}
+                  className="w-auto h-8"
+                />
+              </div>
+            </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
-        {/* Header con Logo */}
-        <div className="flex justify-center mb-8">
-          <div className="w-40 h-40 relative group">
-            <div className="absolute inset-0 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-all duration-500"></div>
-            <Image
-              src="/images/logo/ac-gura-high-resolution-logo-transparent.png"
-              alt="ACgura Logo"
-              fill
-              className="object-contain brightness-125 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] group-hover:scale-105 transition-transform duration-500"
-              priority
-            />
+            {/* Menú de usuario */}
+            <div className="flex items-center">
+              <button
+                onClick={() => setMenuAbierto(!menuAbierto)}
+                className="p-2 rounded-full text-white hover:bg-white/10"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
+      </nav>
 
-        {/* Información del Usuario y Balance */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-white mb-4">
-            ¡Bienvenido {userData?.nombre || 'usuario'}!
-          </h1>
-          <div className="inline-block bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-            <p className="text-white text-lg">
-              Tu balance: <span className="font-bold">${formatNumber(userData?.balance || 0)}</span>
-            </p>
-          </div>
+      {/* Menú desplegable */}
+      {menuAbierto && (
+        <div className="absolute right-0 mt-2 w-48 bg-black/70 backdrop-blur-sm rounded-md shadow-lg py-1 z-10">
+          <Link href="/perfil" className="block px-4 py-2 text-sm text-white hover:bg-white/10">
+            Mi Perfil
+          </Link>
+          <Link href="/configuracion" className="block px-4 py-2 text-sm text-white hover:bg-white/10">
+            Configuración
+          </Link>
+          <hr className="my-1 border-white/20" />
+          <Link href="/logout" className="block px-4 py-2 text-sm text-red-400 hover:bg-white/10">
+            Cerrar Sesión
+          </Link>
         </div>
+      )}
 
-        {/* Botón Principal de Acgurarme */}
-        <div className="mb-8">
-          <Link href="/dashboard/acgurarme" className="block">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
-              <div className="flex flex-col items-center text-center space-y-6">
-                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
-                  <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      {/* Contenido principal */}
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6">
+          {/* Botón principal de Acgurarme */}
+          <Link 
+            href="/seguros"
+            className="group relative bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02]"
+          >
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Acgurarme</h2>
+              <p className="text-white/80">Obtén tu seguro por un día de manera rápida y sencilla</p>
+              <span className="inline-flex items-center text-white font-medium">
+                Crear nueva póliza
+                <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </span>
+            </div>
+          </Link>
+
+          {/* Contenedor de botones secundarios */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Mi Cuenta */}
+            <Link 
+              href="/perfil"
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
-                <h2 className="text-3xl font-bold text-white">Acgurarme</h2>
-                <p className="text-white/90 text-lg max-w-md">
-                  Obtén tu seguro por un día de manera rápida y sencilla
-                </p>
-                <span className="inline-flex items-center text-white font-medium group-hover:translate-x-2 transition-transform duration-300">
-                  Crear nueva póliza
-                  <svg className="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Mi Cuenta</h3>
+                  <p className="text-white/60 text-sm">Gestiona tu perfil y saldo</p>
+                </div>
+              </div>
+            </Link>
+
+            {/* Reclamar */}
+            <Link 
+              href="/reclamar"
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Reclamar</h3>
+                  <p className="text-white/60 text-sm">Gestiona tus reclamaciones</p>
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         </div>
-
-        {/* Grid de Menús Secundarios */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Mi Cuenta */}
-          <Link href="/dashboard/micuenta" className="group">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105 h-full flex flex-col items-center justify-center text-center min-h-[180px]">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold text-white mb-2">Mi Cuenta</h2>
-              <p className="text-gray-300 text-sm">
-                Gestiona tu perfil y consulta tu historial de actividades
-              </p>
-            </div>
-          </Link>
-
-          {/* Reclamar */}
-          <Link href="/dashboard/reclamar" className="group">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105 h-full flex flex-col items-center justify-center text-center min-h-[180px]">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold text-white mb-2">Reclamar</h2>
-              <p className="text-gray-300 text-sm">
-                Inicia el proceso de reclamación de tu seguro de manera fácil y rápida
-              </p>
-            </div>
-          </Link>
-        </div>
-
-        {/* Botón de Cerrar Sesión */}
-        <div className="text-center">
-          <button
-            onClick={handleLogout}
-            className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg transition-all duration-300"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
-
-        {/* Footer */}
-        <footer className="text-center text-gray-400 text-sm mt-12">
-          ACgura © - Una marca registrada de DataPaga® 2023 - Todos los derechos reservados
-        </footer>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
