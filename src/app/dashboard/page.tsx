@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Datos de prueba para el desarrollo
 const datosEjemplo = {
@@ -32,37 +33,42 @@ const datosEjemplo = {
 
 export default function DashboardPage() {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 flex flex-col">
       {/* Barra de navegación superior */}
       <nav className="bg-black/30 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              {/* Logo */}
-              <div className="flex-shrink-0 flex items-center">
-                <Image
-                  src="/images/logo/ac-gura-high-resolution-logo-transparent.png"
-                  alt="ACgura Logo"
-                  width={120}
-                  height={40}
-                  className="w-auto h-8"
-                />
-              </div>
-            </div>
-
-            {/* Menú de usuario */}
-            <div className="flex items-center">
-              <button
-                onClick={() => setMenuAbierto(!menuAbierto)}
-                className="p-2 rounded-full text-white hover:bg-white/10"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          {/* Flecha de regresar */}
+          <button
+            onClick={() => router.back()}
+            className="text-white hover:text-blue-400 transition-colors mr-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <Image
+              src="/images/logo/ac-gura-high-resolution-logo-transparent.png"
+              alt="ACgura Logo"
+              width={180}
+              height={60}
+              className="w-auto h-12"
+            />
+          </div>
+          {/* Menú de usuario */}
+          <div className="flex items-center">
+            <button
+              onClick={() => setMenuAbierto(!menuAbierto)}
+              className="p-2 rounded-full text-white hover:bg-white/10"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
           </div>
         </div>
       </nav>
@@ -84,7 +90,7 @@ export default function DashboardPage() {
       )}
 
       {/* Contenido principal */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6">
           {/* Botón principal de Acgurarme */}
           <Link 
@@ -148,6 +154,11 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer con derechos reservados */}
+      <footer className="w-full text-center py-4 text-white/40 text-sm">
+        © ACgura 2024 - Todos los derechos reservados | Powered by DataPaga
+      </footer>
     </div>
   );
 }
